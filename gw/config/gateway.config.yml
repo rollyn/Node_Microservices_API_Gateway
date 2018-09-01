@@ -1,0 +1,51 @@
+http:
+  port: 8080
+admin:
+  port: 9876
+  hostname: localhost
+apiEndpoints:
+  # see: http://www.express-gateway.io/docs/configuration/gateway.config.yml/apiEndpoints
+  api_kyc:
+    host: 'localhost'
+    paths: '/kyc'
+  api_mutual:
+    host: 'localhost'
+    paths: '/mutual'  
+serviceEndpoints:
+  # see: http://www.express-gateway.io/docs/configuration/gateway.config.yml/serviceEndpoints
+  kyc:
+    url: 'http://localhost:8081'
+  mutual:
+    url:  'http://localhost:8082' 
+policies:
+  - basic-auth
+  - cors
+  - expression
+  - key-auth
+  - log
+  - oauth2
+  - proxy
+  - rate-limit
+pipelines:
+  # see: https://www.express-gateway.io/docs/configuration/gateway.config.yml/pipelines
+  - name: pipelines_kyc
+    apiEndpoints:
+      - api_kyc
+    policies:
+      - log:
+        - action:    # array of condition/actions objects
+            message: ${req.method} ${req.originalUrl} # paramete
+      - proxy:
+        - action:
+            serviceEndpoint: kyc 
+  - name: pipelines_mutual
+    apiEndpoints:
+      - api_mutual
+    policies:
+      - log:
+        - action:    # array of condition/actions objects
+            message: ${req.method} ${req.originalUrl} # paramete
+      - proxy:
+        - action:
+            serviceEndpoint: mutual 
+            
